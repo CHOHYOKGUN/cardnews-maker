@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>마크웨이 카드뉴스 메이커</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Noto+Serif+KR:wght@400;700&family=Black+Han+Sans&family=Do+Hyeon&family=Jua&family=Gugi&family=Gothic+A1:wght@900&family=Nanum+Myeongjo:wght@800&family=Nanum+Gothic:wght@800&family=Sunflower:wght@700&family=Cute+Font&family=Gamja+Flower&family=Hahmlet:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --pink:#E1306C;
+  --pink-dark:#c01058;
+  --bg:#f4f4f0;
+  --white:#ffffff;
+  --border:#e4e4de;
+  --text:#111111;
+  --text2:#555555;
+  --text3:#999999;
+}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);min-height:100vh;color:var(--text)}
+
+/* 상단 헤더 */
+.header{background:var(--white);border-bottom:1px solid var(--border);padding:14px 32px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,.06)}
+.logo{width:40px;height:40px;background:linear-gradient(135deg,#E1306C,#833AB4);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.header-txt h1{font-size:18px;font-weight:700}
+.header-txt p{font-size:12px;color:var(--text3);margin-top:1px}
+.badge{background:var(--pink);color:#fff;font-size:10px;padding:2px 8px;border-radius:10px;margin-left:8px;font-weight:600;vertical-align:middle}
+
+/* 레이아웃 */
+.layout{display:grid;grid-template-columns:380px 1fr;min-height:calc(100vh - 68px)}
+.sidebar{background:var(--white);border-right:1px solid var(--border);padding:22px 20px;overflow-y:auto;position:sticky;top:68px;max-height:calc(100vh - 68px)}
+.main{padding:24px;overflow-y:auto}
+
+/* 패널 */
+.pnl{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin-bottom:16px}
+.pnl-t{font-size:10px;font-weight:700;color:#bbb;text-transform:uppercase;letter-spacing:.09em;margin-bottom:10px}
+.sec-l{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px;display:block}
+.divider{height:1px;background:#f0f0ea;margin:12px 0}
+
+/* 입력 요소 */
+textarea,select,input[type=text]{font-family:'Noto Sans KR',sans-serif;font-size:13px;width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:#fafaf7;color:var(--text);transition:.15s;line-height:1.65}
+textarea{resize:vertical}
+textarea:focus,select:focus,input[type=text]:focus{outline:none;border-color:var(--pink);background:#fff;box-shadow:0 0 0 3px rgba(225,48,108,.08)}
+select{cursor:pointer}
+input[type=range]{width:100%;accent-color:var(--pink)}
+input[type=file]{display:none}
+
+/* 업로드 */
+.upload-z{border:2px dashed #d8d8d0;border-radius:10px;padding:16px;text-align:center;cursor:pointer;background:#fafaf7;transition:.2s;margin-bottom:10px}
+.upload-z:hover{border-color:var(--pink);background:#fff5f8}
+.upload-z .ico{font-size:28px;margin-bottom:5px}
+.upload-z p{font-size:12px;color:var(--text3)}
+.thumb-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:10px}
+.tw{position:relative;border-radius:7px;overflow:hidden}
+.tw img{width:100%;aspect-ratio:1;object-fit:cover;display:block}
+.tdel{position:absolute;top:2px;right:2px;width:18px;height:18px;background:rgba(0,0,0,.65);border:none;border-radius:50%;color:#fff;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+
+/* 폰트 그리드 */
+.font-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px}
+.fc{border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;cursor:pointer;background:#fafaf7;transition:.15s;position:relative}
+.fc:hover{border-color:var(--pink);background:#fff5f8}
+.fc.active{border-color:var(--pink);background:#fff0f5;box-shadow:0 0 0 3px rgba(225,48,108,.1)}
+.fc.active::after{content:'✓';position:absolute;top:7px;right:9px;font-size:11px;color:var(--pink);font-weight:700}
+.fc .fn{font-size:10px;color:#bbb;margin-bottom:3px}
+.fc .fp{font-size:16px;font-weight:700;color:var(--text);line-height:1.2}
+.fc .fs{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* 버튼류 */
+.row-flex{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
+.s-btn{padding:5px 12px;border:1px solid #ddd;border-radius:20px;font-size:12px;cursor:pointer;background:#fff;color:#444;transition:.15s;font-family:'Noto Sans KR',sans-serif;font-weight:500}
+.s-btn:hover{border-color:var(--pink);color:var(--pink)}
+.s-btn.active{background:var(--pink);color:#fff;border-color:var(--pink)}
+
+.c-dot{width:26px;height:26px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:.15s;flex-shrink:0}
+.c-dot.active{border-color:var(--text);transform:scale(1.18)}
+
+/* 생성 버튼 */
+.gen-btn{width:100%;padding:14px;background:linear-gradient(135deg,#E1306C,#833AB4);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:.15s;letter-spacing:.02em;margin-top:6px}
+.gen-btn:hover{opacity:.9;transform:translateY(-1px)}
+.gen-btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+
+/* 진행 상태 */
+.loading{display:none;text-align:center;padding:2rem;color:var(--text3)}
+.loading.show{display:block}
+.spinner{width:36px;height:36px;border:3px solid #f0f0f0;border-top:3px solid var(--pink);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.prog-wrap{display:none;background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:14px}
+.prog-wrap.show{display:block}
+.prog-txt{font-size:12px;color:var(--text3);margin-bottom:6px}
+.prog-bg{height:4px;background:#f0f0ea;border-radius:3px;overflow:hidden}
+.prog-bar{height:100%;background:linear-gradient(90deg,#E1306C,#833AB4);border-radius:3px;transition:width .3s;width:0%}
+
+/* 알림 박스 */
+.ok-box{display:none;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:9px;padding:10px 13px;font-size:12px;color:#166534;margin-top:8px;line-height:1.6}
+.ok-box.show{display:block}
+.err-box{display:none;background:#fef2f2;border:1px solid #fecaca;border-radius:9px;padding:10px 13px;font-size:12px;color:#991b1b;margin-top:8px;line-height:1.5}
+.err-box.show{display:block}
+.auto-badge{display:inline-flex;align-items:center;gap:5px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:20px;padding:4px 10px;font-size:11px;color:#166534;font-weight:500;margin-bottom:10px}
+.dp{width:6px;height:6px;background:#22c55e;border-radius:50%;animation:dp 1.5s infinite}
+@keyframes dp{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* 미리보기 */
+.preview-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.preview-hdr h2{font-size:16px;font-weight:700}
+.dl-row{display:flex;gap:8px}
+.dl-btn{padding:9px 18px;font-size:13px;font-weight:600;cursor:pointer;border-radius:10px;font-family:'Noto Sans KR',sans-serif;transition:.15s;display:none;align-items:center;gap:6px}
+.dl-btn.show{display:inline-flex}
+.dl-btn.primary{background:linear-gradient(135deg,#E1306C,#833AB4);color:#fff;border:none}
+.dl-btn.primary:hover{opacity:.9}
+.dl-btn.secondary{background:#fff;color:#333;border:1px solid #ddd}
+.dl-btn.secondary:hover{border-color:var(--pink);color:var(--pink)}
+.dl-btn:disabled{opacity:.45;cursor:not-allowed}
+
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+.cw{position:relative}
+.cnum{position:absolute;top:-8px;left:-8px;width:22px;height:22px;background:var(--pink);color:#fff;border-radius:50%;font-size:11px;display:flex;align-items:center;justify-content:center;font-weight:700;z-index:2;box-shadow:0 2px 8px rgba(225,48,108,.4)}
+.ic{width:100%;aspect-ratio:1;border-radius:12px;overflow:hidden;position:relative;display:flex;flex-direction:column;justify-content:flex-end;box-shadow:0 4px 20px rgba(0,0,0,.13)}
+.ic-ov{position:absolute;inset:0}
+.ic-con{position:relative;z-index:2;padding:14px}
+.ic-tag{display:inline-block;font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;margin-bottom:7px}
+.ic-title{font-weight:700;line-height:1.35;margin-bottom:5px}
+.ic-body{line-height:1.55;opacity:.9}
+.ic-foot{display:flex;align-items:center;justify-content:space-between;margin-top:9px;padding-top:7px;border-top:1px solid rgba(255,255,255,.2);font-size:9px;opacity:.65}
+.empty-p{min-height:300px;border:2px dashed #ddd;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#bbb;font-size:14px;gap:10px;grid-column:1/-1}
+
+/* 캡션/해시태그 */
+.meta-sec{display:none;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+.meta-sec.show{display:grid}
+.meta-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px 18px}
+.meta-card h3{font-size:13px;font-weight:700;margin-bottom:10px}
+.meta-txt{font-size:13px;line-height:1.75;color:#333;white-space:pre-wrap;display:none}
+.meta-txt.show{display:block}
+.hash-row{display:flex;flex-wrap:wrap;gap:6px;display:none}
+.hash-row.show{display:flex}
+.hpill{background:#EFF6FF;color:#1D4ED8;border-radius:20px;padding:5px 13px;font-size:12px;font-weight:600;border:1px solid #BFDBFE}
+.copy-btn{display:none;margin-top:10px;padding:6px 14px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid #ddd;border-radius:8px;background:#fff;color:#555;font-family:'Noto Sans KR',sans-serif;transition:.15s}
+.copy-btn.show{display:inline-block}
+.copy-btn:hover{border-color:var(--pink);color:var(--pink)}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo">📸</div>
+  <div class="header-txt">
+    <h1>마크웨이 카드뉴스 메이커<span class="badge">PRO</span></h1>
+    <p>AI가 카드 수 자동결정 · 최적 해시태그 5개 · 1080×1080 PNG/ZIP 다운로드</p>
+  </div>
+</header>
+
+<div class="layout">
+<!-- 사이드바 -->
+<aside class="sidebar">
+
+  <div class="pnl">
+    <div class="pnl-t">① 콘텐츠 입력</div>
+    <span class="sec-l">마크웨이 쇼츠 내용</span>
+    <textarea id="content" rows="7" placeholder="마크웨이 쇼츠 내용을 입력하세요..."></textarea>
+    <div class="divider"></div>
+    <span class="sec-l">참고 이미지 (최대 10장)</span>
+    <div class="upload-z" id="uploadZone" onclick="document.getElementById('fi').click()">
+      <div class="ico">🖼️</div>
+      <p>클릭 또는 드래그로 이미지 업로드</p>
+      <p style="font-size:11px;margin-top:3px;opacity:.6">JPG · PNG · WebP</p>
+    </div>
+    <input type="file" id="fi" accept="image/*" multiple>
+    <div class="thumb-grid" id="thumbGrid"></div>
+  </div>
+
+  <div class="pnl">
+    <div class="pnl-t">② 디자인 설정</div>
+
+    <span class="sec-l">카드 수</span>
+    <div class="auto-badge"><span class="dp"></span>AI가 콘텐츠에 맞게 자동 결정</div>
+    <div class="divider"></div>
+
+    <span class="sec-l">폰트 선택</span>
+    <div class="font-grid" id="fontGrid">
+      <div class="fc active" data-font="'Noto Serif KR',serif" onclick="pickFont(this)">
+        <div class="fn">Noto Serif KR</div>
+        <div class="fp" style="font-family:'Noto Serif KR',serif">명조체</div>
+        <div class="fs" style="font-family:'Noto Serif KR',serif">가나다 ABC 123</div>
+      </div>
+      <div class="fc" data-font="'Black Han Sans',sans-serif" onclick="pickFont(this)">
+        <div class="fn">Black Han Sans</div>
+        <div class="fp" style="font-family:'Black Han Sans',sans-serif">블랙한산</div>
+        <div class="fs" style="font-family:'Black Han Sans',sans-serif">가나다 ABC</div>
+      </div>
+      <div class="fc" data-font="'Do Hyeon',sans-serif" onclick="pickFont(this)">
+        <div class="fn">Do Hyeon</div>
+        <div class="fp" style="font-family:'Do Hyeon',sans-serif">도현체</div>
+        <div class="fs" style="font-family:'Do Hyeon',sans-serif">가나다 ABC 123</div>
+      </div>
+      <div class="fc" data-font="'Jua',sans-serif" onclick="pickFont(this)">
+        <div class="fn">Jua</div>
+        <div class="fp" style="font-family:'Jua',sans-serif">주아체</div>
+        <div class="fs" style="font-family:'Jua',sans-serif">가나다 ABC 123</div>
+      </div>
+      <div class="fc" data-font="'Gugi',cursive" onclick="pickFont(this)">
+        <div class="fn">Gugi</div>
+        <div class="fp" style="font-family:'Gugi',cursive">구기체</div>
+        <div class="fs" style="font-family:'Gugi',cursive">가나다 ABC</div>
+      </div>
+      <div class="fc" data-font="'Gothic A1',sans-serif" onclick="pickFont(this)">
+        <div class="fn">Gothic A1</div>
+        <div class="fp" style="font-family:'Gothic A1',sans-serif;font-weight:900">고딕A1</div>
+        <div class="fs" style="font-family:'Gothic A1',sans-serif">가나다 ABC 123</div>
+      </div>
+      <div class="fc" data-font="'Nanum Myeongjo',serif" onclick="pickFont(this)">
+        <div class="fn">나눔명조</div>
+        <div class="fp" style="font-family:'Nanum Myeongjo',serif;font-weight:800">나눔명조</div>
+        <div class="fs" style="font-family:'Nanum Myeongjo',serif">가나다 ABC 123</div>
+      </div>
+      <div class="fc" data-font="'Nanum Gothic',sans-serif" onclick="pickFont(this)">
+        <div class="fn">나눔고딕</div>
+        <div class="fp" style="font-family:'Nanum Gothic',sans-serif;font-weight:800">나눔고딕</div>
+        <div class="fs" style="font-family:'Nanum Gothic',sans-serif">가나다 ABC 123</div>
+      </div>
+      <div class="fc" data-font="'Sunflower',sans-serif" onclick="pickFont(this)">
+        <div class="fn">Sunflower</div>
+        <div class="fp" style="font-family:'Sunflower',sans-serif;font-weight:700">선플라워</div>
+        <div class="fs" style="font-family:'Sunflower',sans-serif">가나다 ABC 123</div>
+      </div>
+      <div class="fc" data-font="'Cute Font',cursive" onclick="pickFont(this)">
+        <div class="fn">Cute Font</div>
+        <div class="fp" style="font-family:'Cute Font',cursive">큐트폰트</div>
+        <div class="fs" style="font-family:'Cute Font',cursive">가나다 ABC 123</div>
+      </div>
+      <div class="fc" data-font="'Gamja Flower',cursive" onclick="pickFont(this)">
+        <div class="fn">감자꽃</div>
+        <div class="fp" style="font-family:'Gamja Flower',cursive">감자꽃체</div>
+        <div class="fs" style="font-family:'Gamja Flower',cursive">가나다 ABC 123</div>
+      </div>
+      <div class="fc" data-font="'Hahmlet',serif" onclick="pickFont(this)">
+        <div class="fn">Hahmlet</div>
+        <div class="fp" style="font-family:'Hahmlet',serif;font-weight:700">함렛체</div>
+        <div class="fs" style="font-family:'Hahmlet',serif">가나다 ABC 123</div>
+      </div>
+    </div>
+    <div class="divider"></div>
+
+    <span class="sec-l">스타일</span>
+    <div class="row-flex" id="styleRow">
+      <button class="s-btn active" data-val="modern">모던</button>
+      <button class="s-btn" data-val="minimal">미니멀</button>
+      <button class="s-btn" data-val="bold">볼드</button>
+      <button class="s-btn" data-val="elegant">엘레강스</button>
+      <button class="s-btn" data-val="playful">플레이풀</button>
+    </div>
+    <div class="divider"></div>
+
+    <span class="sec-l">컬러 테마</span>
+    <div class="row-flex" id="colorRow">
+      <div class="c-dot active" data-val="instagram" style="background:#E1306C" title="인스타그램"></div>
+      <div class="c-dot" data-val="dark" style="background:#1a1a2e" title="다크"></div>
+      <div class="c-dot" data-val="ocean" style="background:#0077B6" title="오션"></div>
+      <div class="c-dot" data-val="forest" style="background:#2D6A4F" title="포레스트"></div>
+      <div class="c-dot" data-val="sunset" style="background:#FF6B35" title="선셋"></div>
+      <div class="c-dot" data-val="mono" style="background:#2C2C2A" title="모노크롬"></div>
+      <div class="c-dot" data-val="gold" style="background:#B8860B" title="골드"></div>
+      <div class="c-dot" data-val="rose" style="background:#8B1A4A" title="로즈"></div>
+      <div class="c-dot" data-val="sky" style="background:#0EA5E9" title="스카이"></div>
+      <div class="c-dot" data-val="mint" style="background:#059669" title="민트"></div>
+    </div>
+    <div class="divider"></div>
+
+    <span class="sec-l">텍스트 크기</span>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+      <input type="range" id="fsRange" min="8" max="22" value="13" step="1" oninput="onFs(this)">
+      <span id="fsOut" style="font-size:12px;color:var(--text3);min-width:30px">13px</span>
+    </div>
+  </div>
+
+  <div class="pnl">
+    <div class="pnl-t">③ 생성</div>
+    <button class="gen-btn" id="genBtn" onclick="generate()">
+      ✨  카드뉴스 자동 생성하기
+    </button>
+    <div class="err-box" id="errBox"></div>
+  </div>
+
+</aside>
+
+<!-- 메인 -->
+<main class="main">
+  <div class="preview-hdr">
+    <h2 id="pvTitle">미리보기</h2>
+    <div class="dl-row">
+      <button class="dl-btn secondary" id="dlAll" onclick="startDl('single')">⬇️ 전체 PNG</button>
+      <button class="dl-btn primary" id="dlZip" onclick="startDl('zip')">📦 ZIP 다운로드</button>
+    </div>
+  </div>
+
+  <div class="prog-wrap" id="progWrap">
+    <div class="prog-txt" id="progTxt">렌더링 중...</div>
+    <div class="prog-bg"><div class="prog-bar" id="progBar"></div></div>
+  </div>
+  <div class="err-box" id="dlErr" style="margin-bottom:14px"></div>
+
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <p>AI가 카드뉴스를 생성하고 있습니다...</p>
+    <p style="font-size:12px;margin-top:6px;opacity:.6">콘텐츠를 분석하고 최적의 구성을 만드는 중</p>
+  </div>
+
+  <div class="cards-grid" id="cardsGrid">
+    <div class="empty-p">
+      <div style="font-size:48px;opacity:.18">🗂️</div>
+      <span>왼쪽에 내용을 입력하고</span>
+      <span style="font-size:12px;opacity:.6">✨ 카드뉴스 자동 생성하기를 누르세요</span>
+    </div>
+  </div>
+
+  <div class="meta-sec" id="metaSec">
+    <div class="meta-card">
+      <h3>📝 인스타그램 캡션</h3>
+      <div class="meta-txt" id="captionBox"></div>
+      <button class="copy-btn" id="copyCapBtn" onclick="copyEl('captionBox',this)">복사</button>
+    </div>
+    <div class="meta-card">
+      <h3>#️⃣ 핵심 해시태그 <span style="color:var(--pink);font-size:11px;font-weight:400">최적 5개</span></h3>
+      <div class="hash-row" id="hashRow"></div>
+      <button class="copy-btn" id="copyHashBtn" onclick="copyHash()">복사</button>
+    </div>
+  </div>
+</main>
+</div>
+
+<script>
+var imgs=[], curFont="'Noto Serif KR',serif", selStyle='modern', selColor='instagram', genData=null, fontSize=13;
+
+var TH={
+  instagram:{bg:'#C13584',ov:'rgba(0,0,0,0.52)',tx:'#fff',tag:'rgba(255,255,255,0.22)',tagTx:'#fff'},
+  dark:     {bg:'#1a1a2e',ov:'rgba(0,0,0,0.60)',tx:'#fff',tag:'rgba(225,48,108,0.40)',tagTx:'#FF8FAB'},
+  ocean:    {bg:'#0077B6',ov:'rgba(0,20,50,0.45)',tx:'#fff',tag:'rgba(255,255,255,0.22)',tagTx:'#CAF0F8'},
+  forest:   {bg:'#2D6A4F',ov:'rgba(0,30,15,0.45)',tx:'#fff',tag:'rgba(255,255,255,0.22)',tagTx:'#B7E4C7'},
+  sunset:   {bg:'#FF6B35',ov:'rgba(80,20,0,0.38)',tx:'#fff',tag:'rgba(255,255,255,0.25)',tagTx:'#fff'},
+  mono:     {bg:'#111',ov:'rgba(0,0,0,0.58)',tx:'#fff',tag:'rgba(255,255,255,0.12)',tagTx:'#ccc'},
+  gold:     {bg:'#7B5E00',ov:'rgba(40,20,0,0.50)',tx:'#FFE88A',tag:'rgba(255,216,0,0.22)',tagTx:'#FFE88A'},
+  rose:     {bg:'#8B1A4A',ov:'rgba(60,0,30,0.52)',tx:'#FFD6E7',tag:'rgba(255,100,150,0.22)',tagTx:'#FFD6E7'},
+  sky:      {bg:'#0369A1',ov:'rgba(0,30,60,0.45)',tx:'#fff',tag:'rgba(255,255,255,0.22)',tagTx:'#BAE6FD'},
+  mint:     {bg:'#065F46',ov:'rgba(0,30,20,0.45)',tx:'#fff',tag:'rgba(255,255,255,0.22)',tagTx:'#A7F3D0'}
+};
+
+function G(id){return document.getElementById(id)}
+
+function pickFont(card){
+  document.querySelectorAll('.fc').forEach(function(c){c.classList.remove('active')});
+  card.classList.add('active'); curFont=card.dataset.font;
+  if(genData) renderCards(genData.cards);
+}
+document.getElementById('styleRow').querySelectorAll('.s-btn').forEach(function(b){
+  b.addEventListener('click',function(){
+    document.getElementById('styleRow').querySelectorAll('.s-btn').forEach(function(x){x.classList.remove('active')});
+    b.classList.add('active'); selStyle=b.dataset.val;
+  });
+});
+document.getElementById('colorRow').querySelectorAll('.c-dot').forEach(function(d){
+  d.addEventListener('click',function(){
+    document.getElementById('colorRow').querySelectorAll('.c-dot').forEach(function(x){x.classList.remove('active')});
+    d.classList.add('active'); selColor=d.dataset.val;
+    if(genData) renderCards(genData.cards);
+  });
+});
+function onFs(el){fontSize=parseInt(el.value);G('fsOut').textContent=fontSize+'px';if(genData)renderCards(genData.cards)}
+
+var uz=G('uploadZone');
+uz.addEventListener('dragover',function(e){e.preventDefault();uz.style.borderColor='#E1306C'});
+uz.addEventListener('dragleave',function(){uz.style.borderColor=''});
+uz.addEventListener('drop',function(e){e.preventDefault();uz.style.borderColor='';addImgs(Array.from(e.dataTransfer.files).filter(function(f){return f.type.startsWith('image/')}))});
+G('fi').addEventListener('change',function(e){addImgs(Array.from(e.target.files));this.value=''});
+function addImgs(files){
+  files.slice(0,10-imgs.length).forEach(function(f){
+    var r=new FileReader();
+    r.onload=function(ev){imgs.push({url:ev.target.result});renderThumbs()};
+    r.readAsDataURL(f);
+  });
+}
+function renderThumbs(){
+  G('thumbGrid').innerHTML=imgs.map(function(img,i){
+    return '<div class="tw"><img src="'+img.url+'"><button class="tdel" onclick="rmImg('+i+')">×</button></div>';
+  }).join('');
+}
+function rmImg(i){imgs.splice(i,1);renderThumbs()}
+
+async function generate(){
+  var content=G('content').value.trim();
+  if(!content){
+    G('errBox').textContent='⚠️ 먼저 콘텐츠를 입력해주세요.';
+    G('errBox').classList.add('show'); return;
+  }
+  G('errBox').classList.remove('show');
+  G('genBtn').disabled=true;
+  G('loading').classList.add('show');
+  G('cardsGrid').innerHTML='';
+  G('metaSec').classList.remove('show');
+  ['dlAll','dlZip'].forEach(function(id){G(id).classList.remove('show')});
+
+  try{
+    var res=await fetch('/api/generate',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({content:content, style:selStyle})
+    });
+    if(!res.ok){
+      var err=await res.json();
+      throw new Error(err.error||'서버 오류');
+    }
+    var data=await res.json();
+    if(!data.cards||!data.cards.length) throw new Error('카드 데이터가 없습니다');
+    genData=data;
+    renderCards(genData.cards);
+    showMeta(genData);
+    G('pvTitle').textContent='미리보기 — '+genData.cards.length+'장 (AI 자동결정)';
+    ['dlAll','dlZip'].forEach(function(id){G(id).classList.add('show')});
+  }catch(e){
+    G('errBox').textContent='⚠️ 생성 실패: '+e.message;
+    G('errBox').classList.add('show');
+    G('cardsGrid').innerHTML='<div class="empty-p"><div style="font-size:48px;opacity:.18">🗂️</div><span>생성에 실패했습니다</span><span style="font-size:12px;opacity:.6">다시 시도해주세요</span></div>';
+  }finally{
+    G('genBtn').disabled=false;
+    G('loading').classList.remove('show');
+  }
+}
+
+function renderCards(cards){
+  var th=TH[selColor], grid=G('cardsGrid'), total=cards.length;
+  grid.innerHTML='';
+  cards.forEach(function(card,i){
+    var imgUrl=imgs.length>0?imgs[i%imgs.length].url:'';
+    var bgStyle=imgUrl?'background-image:url(\''+imgUrl+'\');background-size:cover;background-position:center;':'background:'+th.bg+';';
+    var ov=imgUrl?th.ov:'rgba(0,0,0,0.18)';
+    var titleFs=card.type==='cover'?fontSize+7:fontSize+4;
+    var bodyContent=card.type==='cover'?(card.subtitle||''):(card.body||'');
+    var footLeft=(card.type==='outro'&&card.account)?card.account:'@marqueeway_shorts';
+    var wrap=document.createElement('div');
+    wrap.className='cw';
+    wrap.innerHTML='<div class="cnum">'+(i+1)+'</div>'
+      +'<div class="ic" style="'+bgStyle+'">'
+      +'<div class="ic-ov" style="background:'+ov+'"></div>'
+      +'<div class="ic-con">'
+      +'<span class="ic-tag" style="font-size:'+(Math.max(fontSize-2,9))+'px;background:'+th.tag+';color:'+th.tagTx+';font-family:'+curFont+'">'+(card.emoji||'')+' '+(card.tag||'마크웨이')+'</span>'
+      +'<div class="ic-title" style="color:'+th.tx+';font-size:'+titleFs+'px;font-family:'+curFont+'">'+(card.title||'')+'</div>'
+      +'<div class="ic-body" style="color:'+th.tx+';font-size:'+fontSize+'px;font-family:'+curFont+'">'+bodyContent+'</div>'
+      +'<div class="ic-foot" style="color:'+th.tx+'"><span>'+footLeft+'</span><span>'+(i+1)+'/'+total+'</span></div>'
+      +'</div></div>';
+    grid.appendChild(wrap);
+  });
+}
+
+function showMeta(data){
+  G('metaSec').classList.add('show');
+  if(data.caption){G('captionBox').textContent=data.caption;G('captionBox').classList.add('show');G('copyCapBtn').classList.add('show')}
+  if(data.hashtags){
+    var tags=Array.isArray(data.hashtags)?data.hashtags:[data.hashtags];
+    G('hashRow').innerHTML=tags.map(function(t){return '<span class="hpill">'+t+'</span>'}).join('');
+    G('hashRow').classList.add('show'); G('copyHashBtn').classList.add('show');
+  }
+}
+
+function copyHash(){
+  var pills=G('hashRow').querySelectorAll('.hpill');
+  var txt=Array.from(pills).map(function(p){return p.textContent}).join(' ');
+  var btn=G('copyHashBtn');
+  function done(){var o=btn.textContent;btn.textContent='✅ 복사됨!';setTimeout(function(){btn.textContent=o},2000)}
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done).catch(function(){fb(txt,done)})}else fb(txt,done);
+}
+function copyEl(boxId,btn){
+  var txt=G(boxId).textContent;
+  function done(){var o=btn.textContent;btn.textContent='✅ 복사됨!';setTimeout(function(){btn.textContent=o},2000)}
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done).catch(function(){fb(txt,done)})}else fb(txt,done);
+}
+function fb(txt,cb){
+  var ta=document.createElement('textarea');ta.value=txt;ta.style.cssText='position:fixed;top:-9999px;opacity:0';
+  document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand('copy')}catch(e){}
+  document.body.removeChild(ta);if(cb)cb();
+}
+
+function setProg(pct,txt){G('progBar').style.width=pct+'%';G('progTxt').textContent=txt}
+function makeCanvas(card,imgDataUrl){
+  return new Promise(function(resolve){
+    var S=1080,cv=document.createElement('canvas');
+    cv.width=S;cv.height=S;
+    var ctx=cv.getContext('2d'),th=TH[selColor];
+    function draw(bgImg){
+      if(bgImg){var iw=bgImg.width,ih=bgImg.height,sc=Math.max(S/iw,S/ih),dw=iw*sc,dh=ih*sc,dx=(S-dw)/2,dy=(S-dh)/2;ctx.drawImage(bgImg,dx,dy,dw,dh);ctx.fillStyle=th.ov}
+      else ctx.fillStyle=th.bg;
+      ctx.fillRect(0,0,S,S);
+      var pad=64,fs=fontSize*3.0,titleFs=card.type==='cover'?fs*1.55:fs*1.28,bodyFs=fs*0.88,tagFs=fs*0.70;
+      var fontName=curFont.replace(/'/g,'').split(',')[0].trim();
+      function wrapTxt(text,maxW,fsize,bold){
+        if(!text||!text.trim())return[];
+        ctx.font=(bold?'bold ':'')+fsize+'px "'+fontName+'",sans-serif';
+        var chars=text.split(''),lines=[],cur='';
+        for(var i=0;i<chars.length;i++){var test=cur+chars[i];if(ctx.measureText(test).width>maxW&&cur.length>0){lines.push(cur);cur=chars[i]}else cur=test}
+        if(cur)lines.push(cur);return lines;
+      }
+      var maxW=S-pad*2,bodyText=card.type==='cover'?(card.subtitle||''):(card.body||'');
+      var tagText=(card.emoji||'')+' '+(card.tag||'마크웨이');
+      var footLeft=(card.type==='outro'&&card.account)?card.account:'@marqueeway_shorts';
+      var footRight=(genData?genData.cards.indexOf(card)+1:1)+'/'+(genData?genData.cards.length:1);
+      var titleLines=wrapTxt(card.title||'',maxW,titleFs,true).slice(0,3);
+      var bodyLines=wrapTxt(bodyText,maxW,bodyFs,false).slice(0,3);
+      var footH=fs*1.6;
+      var blockH=footH+16+(bodyLines.length>0?bodyFs*1.58*bodyLines.length+20:0)+titleFs*1.4*titleLines.length+20+tagFs*2.4+20;
+      var y=S-pad-blockH;
+      ctx.font=tagFs+'px "'+fontName+'",sans-serif';
+      var tagW=ctx.measureText(tagText).width+38,tagH=tagFs*2.4;
+      ctx.fillStyle=th.tag;ctx.globalAlpha=0.88;
+      rRect(ctx,pad,y,tagW,tagH,tagH/2);ctx.fill();
+      ctx.globalAlpha=1;ctx.fillStyle=th.tagTx;ctx.textBaseline='middle';ctx.fillText(tagText,pad+19,y+tagH/2);y+=tagH+20;
+      ctx.font='bold '+titleFs+'px "'+fontName+'",sans-serif';ctx.fillStyle=th.tx;ctx.textBaseline='top';
+      titleLines.forEach(function(ln,li){ctx.fillText(ln,pad,y+li*titleFs*1.4)});y+=titleFs*1.4*titleLines.length+20;
+      if(bodyLines.length>0){ctx.font=bodyFs+'px "'+fontName+'",sans-serif';ctx.fillStyle=th.tx;ctx.globalAlpha=0.88;bodyLines.forEach(function(ln,li){ctx.fillText(ln,pad,y+li*bodyFs*1.58)});ctx.globalAlpha=1;y+=bodyFs*1.58*bodyLines.length+20}
+      ctx.strokeStyle='rgba(255,255,255,0.25)';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(S-pad,y);ctx.stroke();y+=16;
+      ctx.font=fs*0.60+'px "'+fontName+'",sans-serif';ctx.fillStyle=th.tx;ctx.globalAlpha=0.65;ctx.textBaseline='top';
+      ctx.fillText(footLeft,pad,y+(footH-fs*0.60)/2);var rw=ctx.measureText(footRight).width;ctx.fillText(footRight,S-pad-rw,y+(footH-fs*0.60)/2);ctx.globalAlpha=1;resolve(cv);
+    }
+    if(imgDataUrl){var im=new Image();im.onload=function(){draw(im)};im.onerror=function(){draw(null)};im.src=imgDataUrl}else draw(null);
+  });
+}
+function rRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath()}
+function sleep(ms){return new Promise(function(r){setTimeout(r,ms)})}
+function canvasToBytes(cv){return new Promise(function(resolve,reject){cv.toBlob(function(blob){if(!blob){reject(new Error('blob 실패'));return}blob.arrayBuffer().then(function(ab){resolve(new Uint8Array(ab))}).catch(reject)},'image/png')})}
+
+async function startDl(mode){
+  if(!genData||!genData.cards.length)return;
+  G('dlErr').classList.remove('show');
+  var cards=genData.cards;
+  G('dlAll').disabled=true;G('dlZip').disabled=true;
+  G('progWrap').classList.add('show');
+  try{
+    var canvases=[];
+    for(var i=0;i<cards.length;i++){
+      setProg(Math.round((i/cards.length)*78),(i+1)+'/'+cards.length+' 카드 렌더링 중...');
+      canvases.push(await makeCanvas(cards[i],imgs.length>0?imgs[i%imgs.length].url:null));
+    }
+    if(mode==='single'){
+      for(var j=0;j<canvases.length;j++){
+        setProg(78+Math.round((j/canvases.length)*20),(j+1)+'번 저장 중...');
+        var a=document.createElement('a');a.href=canvases[j].toDataURL('image/png');a.download='marqueeway_card_'+String(j+1).padStart(2,'0')+'.png';document.body.appendChild(a);a.click();document.body.removeChild(a);
+        await sleep(300);
+      }
+    }else{
+      var entries=[];
+      for(var k=0;k<canvases.length;k++){setProg(78+Math.round((k/canvases.length)*16),'ZIP 패킹 '+(k+1)+'/'+canvases.length+'...');entries.push({name:'marqueeway_card_'+String(k+1).padStart(2,'0')+'.png',data:await canvasToBytes(canvases[k])})}
+      setProg(95,'ZIP 생성 중...');var blob=buildZip(entries);var url=URL.createObjectURL(blob);var a2=document.createElement('a');a2.href=url;a2.download='marqueeway_cardnews.zip';document.body.appendChild(a2);a2.click();document.body.removeChild(a2);setTimeout(function(){URL.revokeObjectURL(url)},5000);
+    }
+    setProg(100,'✅ 완료! 다운로드 폴더를 확인하세요.');
+    setTimeout(function(){G('progWrap').classList.remove('show');setProg(0,'')},3000);
+  }catch(e){G('progWrap').classList.remove('show');G('dlErr').textContent='⚠️ 다운로드 오류: '+e.message;G('dlErr').classList.add('show')}
+  G('dlAll').disabled=false;G('dlZip').disabled=false;
+}
+function buildZip(entries){
+  function u16(v){return new Uint8Array([v&0xFF,(v>>8)&0xFF])}
+  function u32(v){return new Uint8Array([v&0xFF,(v>>8)&0xFF,(v>>16)&0xFF,(v>>24)&0xFF])}
+  function cat(arr){var tot=0,i;for(i=0;i<arr.length;i++)tot+=arr[i].length;var r=new Uint8Array(tot),o=0;for(i=0;i<arr.length;i++){r.set(arr[i],o);o+=arr[i].length}return r}
+  function crc32(buf){var c=0xFFFFFFFF,i,j;for(i=0;i<buf.length;i++){c^=buf[i];for(j=0;j<8;j++)c=(c&1)?(c>>>1)^0xEDB88320:(c>>>1)}return(c^0xFFFFFFFF)>>>0}
+  var enc=new TextEncoder(),parts=[],central=[],offset=0;
+  entries.forEach(function(e){var nb=enc.encode(e.name),crc=crc32(e.data);var local=cat([new Uint8Array([0x50,0x4B,0x03,0x04]),u16(20),u16(0),u16(0),u16(0),u16(0),u32(crc),u32(e.data.length),u32(e.data.length),u16(nb.length),u16(0),nb,e.data]);central.push({nb:nb,crc:crc,sz:e.data.length,off:offset});parts.push(local);offset+=local.length});
+  var cds=central.map(function(c){return cat([new Uint8Array([0x50,0x4B,0x01,0x02]),u16(20),u16(20),u16(0),u16(0),u16(0),u16(0),u32(c.crc),u32(c.sz),u32(c.sz),u16(c.nb.length),u16(0),u16(0),u16(0),u16(0),u32(0),u32(c.off),c.nb])});
+  var cdSize=cds.reduce(function(a,b){return a+b.length},0);
+  var eocd=cat([new Uint8Array([0x50,0x4B,0x05,0x06]),u16(0),u16(0),u16(central.length),u16(central.length),u32(cdSize),u32(offset),u16(0)]);
+  return new Blob([cat(parts.concat(cds).concat([eocd]))],{type:'application/zip'});
+}
+</script>
+</body>
+</html>
